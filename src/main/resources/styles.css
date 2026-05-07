@@ -1,0 +1,19 @@
+.board {
+    width: fit-content;
+}
+
+.square-row {
+    display: flex;
+}
+
+.square {
+    height: 50px;
+    width: 50px;
+    background-color: #555;
+    border: 1px solid #333;
+    box-sizing: border-box;
+}
+
+.highlightedSquare {
+    background-color: #777;
+}
