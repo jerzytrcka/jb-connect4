@@ -1,5 +1,6 @@
 import androidx.compose.runtime.*
 import kotlinx.browser.window
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.web.attributes.*
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
@@ -86,6 +87,15 @@ fun deserializeGameState(rawState: String): SavedGameState? {
     )
 }
 
+fun confettiColor(index: Int): String = when (index % 6) {
+    0 -> "#ff4d4f"
+    1 -> "#ffb020"
+    2 -> "#33c759"
+    3 -> "#2f6fff"
+    4 -> "#b86bff"
+    else -> "#00c2ff"
+}
+
 fun hasWinningLine(boardMatrix: List<List<Player>>, winCondition: Int, player: Player): Boolean {
     if (winCondition <= 0 || player == Player.NONE || boardMatrix.isEmpty()) return false
     val rowCount = boardMatrix.size
@@ -141,6 +151,7 @@ fun Body() {
     var winner by remember { mutableStateOf<Player?>(null) }
     var hoveredColumn by remember { mutableStateOf<Int?>(null) }
     var lastMove by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var showConfetti by remember { mutableStateOf(false) }
     var stateHydrated by remember { mutableStateOf(false) }
     val isDraw = winner == null && isBoardFull(boardMatrix)
     val effectiveWinCondition = winCondition?.toInt()?.takeIf { it > 0 } ?: 4
@@ -149,6 +160,34 @@ fun Body() {
         " (but you won't win)"
     } else {
         ""
+    }
+
+    if (showConfetti) {
+        Div(attrs = { classes("confetti-overlay") }) {
+            repeat(90) { index ->
+                Div(attrs = {
+                    classes("confetti-piece")
+                    attr(
+                        "style",
+                        "--confetti-x: ${((index * 37) % 100)}vw;" +
+                            "--confetti-delay: ${(index % 12) * 70}ms;" +
+                            "--confetti-duration: ${2400 + (index % 8) * 220}ms;" +
+                            "--confetti-rotation: ${(index * 29) % 360}deg;" +
+                            "--confetti-color: ${confettiColor(index)};"
+                    )
+                })
+            }
+        }
+    }
+
+    LaunchedEffect(winner) {
+        if (winner != null) {
+            showConfetti = true
+            delay(5000)
+            showConfetti = false
+        } else {
+            showConfetti = false
+        }
     }
 
     LaunchedEffect(Unit) {

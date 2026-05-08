@@ -139,3 +139,32 @@
     margin-top: 8px;
     text-align: center;
 }
+
+.confetti-overlay {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.confetti-piece {
+    position: absolute;
+    top: -24px;
+    left: var(--confetti-x);
+    width: 10px;
+    height: 16px;
+    background: var(--confetti-color);
+    border-radius: 2px;
+    opacity: 0.95;
+    animation: confetti-fall var(--confetti-duration) linear var(--confetti-delay) infinite;
+}
+
+@keyframes confetti-fall {
+    from {
+        transform: translateY(-10vh) rotate(var(--confetti-rotation));
+    }
+    to {
+        transform: translateY(110vh) rotate(calc(var(--confetti-rotation) + 720deg));
+    }
+}
