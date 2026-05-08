@@ -1,5 +1,6 @@
 .board {
     width: fit-content;
+    margin: 16px auto 0;
 }
 
 .square-row {
@@ -7,13 +8,35 @@
 }
 
 .square {
-    height: 50px;
-    width: 50px;
+    width: min(75px, calc(90vw / var(--grid-size)), calc(90vh / var(--grid-size)));
+    height: min(75px, calc(90vw / var(--grid-size)), calc(90vh / var(--grid-size)));
     background-color: #555;
     border: 1px solid #333;
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .highlightedSquare {
     background-color: #777;
+}
+
+.piece {
+    width: 72%;
+    height: 72%;
+    border-radius: 50%;
+}
+
+.piece-blue {
+    background-color: #2f6fff;
+}
+
+.piece-red {
+    background-color: #e14b4b;
+}
+
+.board-status {
+    margin-top: 8px;
+    text-align: center;
 }
