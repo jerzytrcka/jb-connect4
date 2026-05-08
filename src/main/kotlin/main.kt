@@ -65,8 +65,8 @@ fun Body() {
     var hoveredColumn by remember { mutableStateOf<Int?>(null) }
     val isDraw = winner == null && isBoardFull(boardMatrix)
 
-    Div {
-        Text("Size of board:")
+    Div (attrs = { classes("resp-text") }){
+        Text("Size of board:", )
     }
     Input(
         type = InputType.Number,
@@ -78,7 +78,7 @@ fun Body() {
         }
     )
 
-    Div {
+    Div (attrs = { classes("resp-text") }){
         Text("Win condition (how many in a row):")
     }
     Input(
@@ -157,7 +157,7 @@ fun Body() {
                     }
                 }
             }
-            Div(attrs = { classes("board-status") }) {
+            Div(attrs = { classes("board-status", "resp-text") }) {
                 if (winner != null) {
                     Text("$winner wins!")
                 } else if (isDraw) {

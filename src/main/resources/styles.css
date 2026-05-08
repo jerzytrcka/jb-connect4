@@ -5,8 +5,12 @@
     padding: 8px 10px;
     box-sizing: border-box;
     margin-bottom: 10px;
+    margin-left: 16px;
 }
-
+.resp-text {
+    font-size: 3rem;
+    font-family: verdana, sans-serif;
+}
 .board {
     width: fit-content;
     margin: 16px auto 0;
