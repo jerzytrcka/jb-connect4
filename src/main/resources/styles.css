@@ -11,6 +11,68 @@
     font-size: 3rem;
     font-family: verdana, sans-serif;
 }
+
+.controls-with-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.controls-panel {
+    display: block;
+}
+
+.start-button {
+    margin: 8px 0 12px 16px;
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #3a7bff, #285ae6);
+    color: #fff;
+    font-size: 3rem;
+    font-family: verdana, sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(40, 90, 230, 0.35);
+    transition: transform 0.12s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.start-button:hover {
+    filter: brightness(1.05);
+    box-shadow: 0 8px 22px rgba(40, 90, 230, 0.4);
+}
+
+.start-button:active {
+    transform: translateY(1px) scale(0.99);
+}
+
+.start-button:focus-visible {
+    outline: 3px solid rgba(58, 123, 255, 0.4);
+    outline-offset: 2px;
+}
+
+.validation-error {
+    margin-top: 12px;
+    color: #7a0000;
+    font-size: 2rem;
+    font-weight: 600;
+    font-family: verdana, sans-serif;
+    max-width: min(360px, 40vw);
+}
+
+@media (max-width: 900px) {
+    .controls-with-error {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .validation-error {
+        margin-left: 16px;
+        max-width: min(420px, 90vw);
+    }
+}
+
 .board {
     width: fit-content;
     margin: 16px auto 0;

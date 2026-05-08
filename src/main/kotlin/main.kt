@@ -58,6 +58,7 @@ fun main() {
 fun Body() {
     var firstNumber by remember { mutableStateOf<Number?>(null) }
     var winCondition by remember { mutableStateOf<Number?>(null) }
+    var validationError by remember { mutableStateOf<String?>(null) }
     var gridSize by remember { mutableStateOf(0) }
     var boardMatrix by remember { mutableStateOf<List<List<Player>>>(emptyList()) }
     var playerToMove by remember { mutableStateOf(Player.RED) }
@@ -65,44 +66,70 @@ fun Body() {
     var hoveredColumn by remember { mutableStateOf<Int?>(null) }
     val isDraw = winner == null && isBoardFull(boardMatrix)
 
-    Div (attrs = { classes("resp-text") }){
-        Text("Size of board:", )
-    }
-    Input(
-        type = InputType.Number,
-        attrs = {
-            classes("game-input")
-            onInput { event ->
-                firstNumber = event.value
+    Div(attrs = { classes("controls-with-error") }) {
+        Div(attrs = { classes("controls-panel") }) {
+            Div (attrs = { classes("resp-text") }){
+                Text("Size of board:", )
             }
-        }
-    )
+            Input(
+                type = InputType.Number,
+                attrs = {
+                    classes("game-input")
+                    onInput { event ->
+                        firstNumber = event.value
+                        validationError = null
+                    }
+                }
+            )
 
-    Div (attrs = { classes("resp-text") }){
-        Text("Win condition (how many in a row):")
-    }
-    Input(
-        type = InputType.Number,
-        attrs = {
-            classes("game-input")
-            onInput { event ->
-                winCondition = event.value
+            Div (attrs = { classes("resp-text") }){
+                Text("Win condition (how many in a row):")
             }
-        }
-    )
+            Input(
+                type = InputType.Number,
+                attrs = {
+                    classes("game-input")
+                    onInput { event ->
+                        winCondition = event.value
+                        validationError = null
+                    }
+                }
+            )
 
-    Div {
-        Button(
-            attrs = {
-                onClick { _ ->
-                    gridSize = firstNumber?.toInt() ?: 0
-                    boardMatrix = List(gridSize) { List(gridSize) { Player.NONE } }
-                    playerToMove = Player.RED
-                    winner = null
+            Div {
+                Button(
+                    attrs = {
+                        classes("start-button")
+                        onClick { _ ->
+                            val requestedGridSize = firstNumber?.toInt()
+                            val requestedWinCondition = winCondition?.toInt()
+                            validationError = when {
+                                (requestedGridSize == null || requestedGridSize <= 0) &&
+                                    (requestedWinCondition == null || requestedWinCondition <= 0) ->
+                                    "Board size and win condition must be positive numbers."
+                                requestedGridSize == null || requestedGridSize <= 0 ->
+                                    "Board size must be a positive number."
+                                requestedWinCondition == null || requestedWinCondition <= 0 ->
+                                    "Win condition must be a positive number."
+                                else -> null
+                            }
+                            if (validationError != null) return@onClick
+
+                            gridSize = requestedGridSize ?: 0
+                            boardMatrix = List(gridSize) { List(gridSize) { Player.NONE } }
+                            playerToMove = Player.RED
+                            winner = null
+                        }
+                    }
+                ) {
+                    Text(" Start ")
                 }
             }
-        ) {
-            Text("Start")
+        }
+        if (validationError != null) {
+            Div(attrs = { classes("validation-error") }) {
+                Text(validationError!!)
+            }
         }
     }
 
