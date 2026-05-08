@@ -84,6 +84,7 @@
 }
 
 .board {
+    --cell-size: min(75px, calc(90vw / var(--grid-size)), calc(90vh / var(--grid-size)));
     width: fit-content;
     margin: 16px auto 0;
 }
@@ -93,8 +94,8 @@
 }
 
 .square {
-    width: min(75px, calc(90vw / var(--grid-size)), calc(90vh / var(--grid-size)));
-    height: min(75px, calc(90vw / var(--grid-size)), calc(90vh / var(--grid-size)));
+    width: var(--cell-size);
+    height: var(--cell-size);
     background-color: #555;
     border: 1px solid #333;
     box-sizing: border-box;
@@ -111,6 +112,19 @@
     width: 72%;
     height: 72%;
     border-radius: 50%;
+}
+
+.piece-drop {
+    animation: piece-drop 320ms ease-out;
+}
+
+@keyframes piece-drop {
+    from {
+        transform: translateY(calc(-1 * var(--drop-distance)));
+    }
+    to {
+        transform: translateY(0);
+    }
 }
 
 .piece-blue {

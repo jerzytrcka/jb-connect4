@@ -64,6 +64,7 @@ fun Body() {
     var playerToMove by remember { mutableStateOf(Player.RED) }
     var winner by remember { mutableStateOf<Player?>(null) }
     var hoveredColumn by remember { mutableStateOf<Int?>(null) }
+    var lastMove by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     val isDraw = winner == null && isBoardFull(boardMatrix)
     val effectiveWinCondition = winCondition?.toInt()?.takeIf { it > 0 } ?: 4
     val boardSizeInput = firstNumber?.toInt()?.takeIf { it > 0 }
@@ -132,6 +133,7 @@ fun Body() {
                             boardMatrix = List(gridSize) { List(gridSize) { Player.NONE } }
                             playerToMove = Player.RED
                             winner = null
+                            lastMove = null
                         }
                     }
                 ) {
@@ -179,6 +181,7 @@ fun Body() {
                                         }
                                     }
                                     boardMatrix = updatedBoardMatrix
+                                    lastMove = targetRow to columnIndex
                                     val targetWinCondition = winCondition?.toInt() ?: 0
                                     if (hasWinningLine(updatedBoardMatrix, targetWinCondition, currentPlayer)) {
                                         winner = currentPlayer
@@ -189,8 +192,20 @@ fun Body() {
                             }
                         }) {
                             when (cellPlayer) {
-                                Player.BLUE -> Div(attrs = { classes("piece", "piece-blue") })
-                                Player.RED -> Div(attrs = { classes("piece", "piece-red") })
+                                Player.BLUE -> Div(attrs = {
+                                    classes("piece", "piece-blue")
+                                    if (lastMove?.first == rowIndex && lastMove?.second == columnIndex) {
+                                        classes("piece-drop")
+                                        attr("style", "--drop-distance: calc(${rowIndex + 1} * var(--cell-size));")
+                                    }
+                                })
+                                Player.RED -> Div(attrs = {
+                                    classes("piece", "piece-red")
+                                    if (lastMove?.first == rowIndex && lastMove?.second == columnIndex) {
+                                        classes("piece-drop")
+                                        attr("style", "--drop-distance: calc(${rowIndex + 1} * var(--cell-size));")
+                                    }
+                                })
                                 Player.NONE -> {}
                             }
                         }
