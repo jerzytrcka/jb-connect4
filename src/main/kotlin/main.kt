@@ -1,4 +1,5 @@
 import androidx.compose.runtime.*
+import kotlinx.browser.window
 import org.jetbrains.compose.web.attributes.*
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
@@ -8,6 +9,81 @@ import org.jetbrains.compose.web.renderComposable
 
 enum class Player {
     BLUE, RED, NONE
+}
+
+private const val GAME_STATE_STORAGE_KEY = "connect4-game-state-v1"
+
+data class SavedGameState(
+    val firstNumber: Int?,
+    val winCondition: Int?,
+    val gridSize: Int,
+    val boardMatrix: List<List<Player>>,
+    val playerToMove: Player,
+    val winner: Player?
+)
+
+fun playerFromStorageValue(value: String): Player? = when (value) {
+    "BLUE" -> Player.BLUE
+    "RED" -> Player.RED
+    "NONE" -> Player.NONE
+    else -> null
+}
+
+fun encodeBoard(boardMatrix: List<List<Player>>): String =
+    boardMatrix.joinToString(";") { row -> row.joinToString(",") { cell -> cell.name } }
+
+fun decodeBoard(rawBoard: String): List<List<Player>>? {
+    if (rawBoard.isBlank()) return emptyList()
+    val board = mutableListOf<List<Player>>()
+    for (rawRow in rawBoard.split(";")) {
+        if (rawRow.isBlank()) {
+            board.add(emptyList())
+            continue
+        }
+        val row = mutableListOf<Player>()
+        for (rawCell in rawRow.split(",")) {
+            val player = playerFromStorageValue(rawCell) ?: return null
+            row.add(player)
+        }
+        board.add(row)
+    }
+    return board
+}
+
+fun serializeGameState(state: SavedGameState): String = listOf(
+    state.firstNumber?.toString() ?: "",
+    state.winCondition?.toString() ?: "",
+    state.gridSize.toString(),
+    state.playerToMove.name,
+    state.winner?.name ?: "",
+    encodeBoard(state.boardMatrix)
+).joinToString("|")
+
+fun deserializeGameState(rawState: String): SavedGameState? {
+    val parts = rawState.split("|", limit = 6)
+    if (parts.size != 6) return null
+
+    val firstNumber = parts[0].takeIf { it.isNotBlank() }?.toIntOrNull()
+    val winCondition = parts[1].takeIf { it.isNotBlank() }?.toIntOrNull()
+    val parsedGridSize = parts[2].toIntOrNull() ?: 0
+    val playerToMove = playerFromStorageValue(parts[3]) ?: Player.RED
+    val winner = parts[4].takeIf { it.isNotBlank() }?.let(::playerFromStorageValue)
+    val boardMatrix = decodeBoard(parts[5]) ?: return null
+    val normalizedBoard = if (boardMatrix.isNotEmpty() && boardMatrix.all { row -> row.size == boardMatrix.size }) {
+        boardMatrix
+    } else {
+        emptyList()
+    }
+    val gridSize = if (normalizedBoard.isNotEmpty()) normalizedBoard.size else parsedGridSize.coerceAtLeast(0)
+
+    return SavedGameState(
+        firstNumber = firstNumber,
+        winCondition = winCondition,
+        gridSize = gridSize,
+        boardMatrix = normalizedBoard,
+        playerToMove = playerToMove,
+        winner = winner
+    )
 }
 
 fun hasWinningLine(boardMatrix: List<List<Player>>, winCondition: Int, player: Player): Boolean {
@@ -65,6 +141,7 @@ fun Body() {
     var winner by remember { mutableStateOf<Player?>(null) }
     var hoveredColumn by remember { mutableStateOf<Int?>(null) }
     var lastMove by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var stateHydrated by remember { mutableStateOf(false) }
     val isDraw = winner == null && isBoardFull(boardMatrix)
     val effectiveWinCondition = winCondition?.toInt()?.takeIf { it > 0 } ?: 4
     val boardSizeInput = firstNumber?.toInt()?.takeIf { it > 0 }
@@ -72,6 +149,35 @@ fun Body() {
         " (but you won't win)"
     } else {
         ""
+    }
+
+    LaunchedEffect(Unit) {
+        val restoredState = window.localStorage.getItem(GAME_STATE_STORAGE_KEY)?.let(::deserializeGameState)
+        if (restoredState != null) {
+            firstNumber = restoredState.firstNumber
+            winCondition = restoredState.winCondition
+            gridSize = restoredState.gridSize
+            boardMatrix = restoredState.boardMatrix
+            playerToMove = restoredState.playerToMove
+            winner = restoredState.winner
+            validationError = null
+            hoveredColumn = null
+            lastMove = null
+        }
+        stateHydrated = true
+    }
+
+    LaunchedEffect(stateHydrated, firstNumber, winCondition, gridSize, boardMatrix, playerToMove, winner) {
+        if (!stateHydrated) return@LaunchedEffect
+        val savedState = SavedGameState(
+            firstNumber = firstNumber?.toInt(),
+            winCondition = winCondition?.toInt(),
+            gridSize = gridSize,
+            boardMatrix = boardMatrix,
+            playerToMove = playerToMove,
+            winner = winner
+        )
+        window.localStorage.setItem(GAME_STATE_STORAGE_KEY, serializeGameState(savedState))
     }
 
 
