@@ -71,6 +71,7 @@ fun Body() {
     Input(
         type = InputType.Number,
         attrs = {
+            classes("game-input")
             onInput { event ->
                 firstNumber = event.value
             }
@@ -83,6 +84,7 @@ fun Body() {
     Input(
         type = InputType.Number,
         attrs = {
+            classes("game-input")
             onInput { event ->
                 winCondition = event.value
             }
