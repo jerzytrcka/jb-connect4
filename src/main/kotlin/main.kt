@@ -65,6 +65,19 @@ fun Body() {
     var winner by remember { mutableStateOf<Player?>(null) }
     var hoveredColumn by remember { mutableStateOf<Int?>(null) }
     val isDraw = winner == null && isBoardFull(boardMatrix)
+    val effectiveWinCondition = winCondition?.toInt()?.takeIf { it > 0 } ?: 4
+    val boardSizeInput = firstNumber?.toInt()?.takeIf { it > 0 }
+    val noWinWarning = if (boardSizeInput != null && winCondition != null && boardSizeInput < effectiveWinCondition) {
+        " (but you won't win)"
+    } else {
+        ""
+    }
+
+
+
+    Div(attrs = { classes("title") }) {
+        Text("Play connect $effectiveWinCondition!$noWinWarning")
+    }
 
     Div(attrs = { classes("controls-with-error") }) {
         Div(attrs = { classes("controls-panel") }) {

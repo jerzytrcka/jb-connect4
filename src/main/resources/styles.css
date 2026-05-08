@@ -1,6 +1,7 @@
 .game-input {
     width: min(420px, 90vw);
     height: 44px;
+    border: 2px solid #000;
     font-size: 16px;
     padding: 8px 10px;
     box-sizing: border-box;
@@ -8,10 +9,19 @@
     margin-left: 16px;
 }
 .resp-text {
+    margin-left: 16px;
     font-size: 3rem;
     font-family: verdana, sans-serif;
 }
-
+.title {
+    margin-left: 16px;
+    margin-top: 20px;
+    font-size: 4rem;
+    align-content: center;
+    text-align: center;
+    font-weight: bold;
+    font-family: "Comic Sans MS", verdana, sans-serif;
+}
 .controls-with-error {
     display: flex;
     align-items: flex-start;
